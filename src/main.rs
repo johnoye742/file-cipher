@@ -12,23 +12,20 @@ fn main() {
     let _ = io::stdin().read_line(&mut file_path);
 
     
-    let key = Key::<Aes256Gcm>::from_slice(b"password");
+    let key_bytes = [0u8; 32];
+    let key = Key::<Aes256Gcm>::from_slice(&key_bytes);
 
     let cipher = Aes256Gcm::new(key);
     let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
     match fs::read(file_path.trim()) {
         Ok(lines) => {
-            println!("{:?}", lines);
             for line in lines {
-                if line < 1 {
-                    &content.push(line);
-                } else {
-                    &content.push(line - 1);
-                }
+                content.push(line);
             }
         },
         Err(err) => println!("{:?}", err)
     }
+    println!("nonce: {:?}", nonce);
 
     let encrypted = match cipher.encrypt(&nonce, content.as_ref()) {
         Ok(text) => text,
