@@ -1,6 +1,6 @@
 use std::{fs, io, thread};
-use rsa::RsaPrivateKey;
-use rand;
+
+use aes_gcm::{aead::{Aead, OsRng}, aes::cipher, AeadCore, Aes256Gcm, Key, KeyInit};
 
 
 fn main() {
@@ -11,9 +11,11 @@ fn main() {
     let mut file_path = String::new();
     let _ = io::stdin().read_line(&mut file_path);
 
-    let mut rng = rand::thread_rng();
-    let privateKey = RsaPrivateKey::new(&mut rng, 2048);
     
+    let key = Key::<Aes256Gcm>::from_slice(b"password");
+
+    let cipher = Aes256Gcm::new(key);
+    let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
     match fs::read(file_path.trim()) {
         Ok(lines) => {
             println!("{:?}", lines);
@@ -28,5 +30,9 @@ fn main() {
         Err(err) => println!("{:?}", err)
     }
 
-    fs::write("../moded-file", content);
+    let encrypted = match cipher.encrypt(&nonce, content.as_ref()) {
+        Ok(text) => text,
+        Err(err) => panic!("{:?}", err)
+    };
+    fs::write("../moded-file", encrypted);
 }
