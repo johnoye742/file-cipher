@@ -1,6 +1,6 @@
-use std::{fs, io, thread};
+use std::{fs, io::{self, Read}};
 
-use aes_gcm::{aead::{Aead, OsRng}, aes::cipher, AeadCore, Aes256Gcm, Key, KeyInit};
+use aes_gcm::{aead::{Aead, OsRng}, AeadCore, Aes256Gcm, Key, KeyInit};
 
 
 fn main() {
@@ -17,6 +17,8 @@ fn main() {
 
     let cipher = Aes256Gcm::new(key);
     let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
+    key.bytes().map(|byte| content.push(byte.expect("couldn't read byte")));
+    nonce.bytes().map(|byte| content.push(byte.expect("couldn't read byte")));
     match fs::read(file_path.trim()) {
         Ok(lines) => {
             for line in lines {
@@ -31,5 +33,10 @@ fn main() {
         Ok(text) => text,
         Err(err) => panic!("{:?}", err)
     };
-    fs::write("../moded-file", encrypted);
+    fs::write("../moded-file", encrypted).expect("Cpuldn't write to file");
+    println!("{:?}", key);
+}
+
+
+fn decrypt_file () {
 }
