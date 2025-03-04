@@ -11,14 +11,17 @@ fn main() {
     let mut file_path = String::new();
     let _ = io::stdin().read_line(&mut file_path);
 
+    println!("Enter 32 character long passphrase: ");
+
+    let mut passphrase = String::new();
+
+    let _ = io::stdin().read_line(&mut passphrase);
+
     
-    let key_bytes = [0u8; 32];
-    let key = Key::<Aes256Gcm>::from_slice(&key_bytes);
+    let key = Key::<Aes256Gcm>::from_slice(passphrase.trim().as_bytes());
 
     let cipher = Aes256Gcm::new(key);
     let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
-    key.bytes().map(|byte| content.push(byte.expect("couldn't read byte")));
-    nonce.bytes().map(|byte| content.push(byte.expect("couldn't read byte")));
     match fs::read(file_path.trim()) {
         Ok(lines) => {
             for line in lines {
