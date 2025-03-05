@@ -40,8 +40,11 @@ fn main() {
     println!("{:?}", key);
 }
 
+fn encrypt_file(passphrase: String, file_path: String) {
 
-fn decrypt_file (passphrase: String, file_path: &str) {
+}
+
+fn decrypt_file (passphrase: String, file_path: String) {
     let key = Key::<Aes256Gcm>::from_slice(passphrase.trim().as_bytes());
     let cipher = Aes256Gcm::new(key);
     let mut content = Vec::new();
