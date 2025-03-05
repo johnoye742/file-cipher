@@ -41,5 +41,19 @@ fn main() {
 }
 
 
-fn decrypt_file () {
+fn decrypt_file (passphrase: String, file_path: &str) {
+    let key = Key::<Aes256Gcm>::from_slice(passphrase.trim().as_bytes());
+    let cipher = Aes256Gcm::new(key);
+    let mut content = Vec::new();
+    match fs::read(file_path.trim()) {
+        Ok(bytes) => {
+            for byte in bytes {
+                content.push(byte);
+            }
+        },
+        Err(err) => println!("{:?}", err)
+    }
+    let decrypted = cipher.decrypt(&Aes256Gcm::generate_nonce(&mut OsRng), content.as_ref());
+
+    fs::write(file_path, &decrypted.expect("couldn't decrypt file")).expect("couldn't write the file");
 }
