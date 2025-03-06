@@ -1,6 +1,7 @@
 use std::{fs, io::{self, Read}};
 
 use aes_gcm::{aead::{Aead, OsRng}, AeadCore, Aes256Gcm, Key, KeyInit, Nonce};
+use argon2::Argon2;
 
 
 fn main() {
@@ -31,10 +32,12 @@ fn main() {
 
 fn encrypt_file(passphrase: &String, file_path: &String) {
     let mut content = Vec::new();
-    let key = Key::<Aes256Gcm>::from_slice(passphrase.trim().as_bytes());
+    let mut key_bytes = [0u8; 32];
+    Argon2::default().hash_password_into(passphrase.trim().as_bytes(), b"file-cipher", &mut key_bytes).expect("Couldn't hash_password_into");
+    let key = Key::<Aes256Gcm>::from_slice(&key_bytes);
 
     let cipher = Aes256Gcm::new(key);
-    let nonce = Nonce::from_slice(&passphrase[0..12].as_bytes());
+    let nonce = Nonce::from_slice(&key_bytes[0..12]);
     match fs::read(file_path.trim()) {
         Ok(lines) => {
             for line in lines {
@@ -54,11 +57,13 @@ fn encrypt_file(passphrase: &String, file_path: &String) {
 }
 
 fn decrypt_file (passphrase: &String, file_path: &String) {
-    let key = Key::<Aes256Gcm>::from_slice(passphrase.trim().as_bytes());
-    let cipher = Aes256Gcm::new(key);
     let mut content = Vec::new();
-    let nonce = Nonce::from_slice(&passphrase[0..12].as_bytes());
+    let mut key_bytes = [0u8; 32];
+    Argon2::default().hash_password_into(passphrase.trim().as_bytes(), b"file-cipher", &mut key_bytes).expect("Couldn't hash_password_into");
+    let key = Key::<Aes256Gcm>::from_slice(&key_bytes);
 
+    let cipher = Aes256Gcm::new(key);
+    let nonce = Nonce::from_slice(&key_bytes[0..12]);
     match fs::read(file_path.trim()) {
         Ok(bytes) => {
             for byte in bytes {
