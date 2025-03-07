@@ -11,7 +11,7 @@ fn main() {
     let mut file_path = String::new();
     let _ = io::stdin().read_line(&mut file_path);
 
-    println!("Enter a strong passphrase you'll remember: ");
+    println!("Enter passphrase: ");
 
     let mut passphrase = String::new();
 
