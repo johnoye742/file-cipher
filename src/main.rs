@@ -1,6 +1,6 @@
-use std::{fs, io::{self, Read}};
+use std::{fs, io::{self}};
 
-use aes_gcm::{aead::{Aead, OsRng}, AeadCore, Aes256Gcm, Key, KeyInit, Nonce};
+use aes_gcm::{aead::Aead, Aes256Gcm, Key, KeyInit, Nonce};
 use argon2::Argon2;
 
 
