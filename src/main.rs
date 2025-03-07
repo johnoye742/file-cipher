@@ -46,14 +46,12 @@ fn encrypt_file(passphrase: &String, file_path: &String) {
         },
         Err(err) => println!("{:?}", err)
     }
-    println!("nonce: {:?}", nonce);
-
     let encrypted = match cipher.encrypt(&nonce, content.as_ref()) {
         Ok(text) => text,
         Err(err) => panic!("{:?}", err)
     };
     fs::write(file_path.trim(), encrypted).expect("Couldn't write to file");
-    println!("Nonce size: {}", nonce.len());
+    println!("Successfully encrypted the file at: {}", file_path);
 }
 
 fn decrypt_file (passphrase: &String, file_path: &String) {
@@ -79,4 +77,5 @@ fn decrypt_file (passphrase: &String, file_path: &String) {
         Ok(d) => d,
         Err(err) => panic!("{:?}", err)
     }).expect("couldn't write the file");
+    println!("Successfully decrypted the file at: {}", file_path);
 }
